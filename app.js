@@ -25,7 +25,7 @@ config(['$routeProvider', function($routeProvider) {
 myApp.factory('usuario', function($localStorage) {
   // Si pudiésemos leer el nº de teléfono sería mejor
   
-  //delete $localStorage.vendedor;
+  //delete $localStorage.usuario;
   
   var nuevoUsuario = $localStorage.usuario;
   
@@ -37,10 +37,11 @@ myApp.factory('usuario', function($localStorage) {
   return nuevoUsuario;
 });
 
-var vendedorController = myApp.controller('vendedorController', ['$scope', 'usuario', '$routeParams', '$location', '$localStorage' , function ($scope, usuario, $routeParams, $location, $localStorage) {
+var vendedorController = myApp.controller('vendedorController', ['$scope', 'usuario', '$routeParams', '$location', '$localStorage', '$window', function ($scope, usuario, $routeParams, $location, $localStorage, $window) {
   $localStorage.usuario = {
     'idVendedor' : $routeParams.idVendedor,
     'nombre' : "General"
   };
   $location.path("/PlantillaVenta");
+  $window.location.reload();
 }]);
