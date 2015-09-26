@@ -12,9 +12,9 @@ plantillaVentaModule.config(['$routeProvider', function($routeProvider) {
 
 
 
-var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'vendedor', function ($scope, plantillaVentaService, $filter, vendedor) {
+var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', function ($scope, plantillaVentaService, $filter, usuario) {
     $scope.model = {};
-    $scope.vendedor = vendedor;
+    $scope.usuario = usuario;
     
 
     $scope.buscarEnTodosLosProductos = function() {
@@ -66,7 +66,7 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
     };
 }]);
 
-var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService', ['$http', 'SERVIDOR', '$filter', 'vendedor', function ($http, SERVIDOR, $filter, vendedor) {
+var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService', ['$http', 'SERVIDOR', '$filter', 'usuario', function ($http, SERVIDOR, $filter, usuario) {
     this.buscarProductos = function ($scope, $filter) {
         $scope.promesaBuscarProductos =  $http({
             method: "GET",
@@ -136,7 +136,7 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
     this.getClientes = function ($scope) {
         $scope.promesaClientes = $http({
             method: "GET",
-            url: SERVIDOR.API_URL + "/Clientes?empresa=1&vendedor=" + vendedor.id + "&filtro=" + $scope.model.filtro,
+            url: SERVIDOR.API_URL + "/Clientes?empresa=1&vendedor=" + usuario.idVendedor + "&filtro=" + $scope.model.filtro,
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.clientes = data;

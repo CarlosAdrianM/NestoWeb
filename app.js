@@ -12,32 +12,35 @@ var myApp = angular.module('myApp', [
   'ngStorage'
 ]).
 config(['$routeProvider', function($routeProvider) {
-  $routeProvider.otherwise({redirectTo: '/PlantillaVenta'});
+  $routeProvider.when('/vendedor/:idVendedor', {
+    templateUrl: "vendedor.html",
+    controller: "vendedorController"
+  })
+  .otherwise({redirectTo: '/PlantillaVenta'});
 }])
 .constant('SERVIDOR', {
   'API_URL': 'http://88.26.231.83/api'
 });
 
-myApp.factory('vendedor', function($localStorage, $location) {
+myApp.factory('usuario', function($localStorage) {
   // Si pudiésemos leer el nº de teléfono sería mejor
   
-  /*$localStorage.vendedor = {
-    'id' : "NV",
-    'nombre' : "General"
-  };*/
-  var nuevoVendedor = $localStorage.vendedor;
-  /*
-  if (!nuevoVendedor || nuevoVendedor.id == "NV") {
-      $location.href = '/signin';
+  //delete $localStorage.vendedor;
+  
+  var nuevoUsuario = $localStorage.usuario;
+  
+  if (!nuevoUsuario) {
+      nuevoUsuario = {};
   }
-  */
-  /*
-  var nuevoVendedor = {
-    'id' : "NV",
-    'nombre' : "General"
-  };
-  */
+  
   // factory function body that constructs shinyNewServiceInstance
-  return nuevoVendedor;
+  return nuevoUsuario;
 });
 
+var vendedorController = myApp.controller('vendedorController', ['$scope', 'usuario', '$routeParams', '$location', '$localStorage' , function ($scope, usuario, $routeParams, $location, $localStorage) {
+  $localStorage.usuario = {
+    'idVendedor' : $routeParams.idVendedor,
+    'nombre' : "General"
+  };
+  $location.path("/PlantillaVenta");
+}]);

@@ -1,16 +1,11 @@
 <div ng-controller="plantillaVentaController">    
     <div class="alert alert-danger" role="alert" ng-show="message">{{message}}</div>
     
-    <form ng-hide="vendedor">
-        <div class="alert alert-danger" role="alert">Debe especificar su código de vendedor. Asegúrese que sea correcto, porque esta información NO la podrá cambiar con posterioridad.</div>
-        <div class="form-group">
-            <label for="vendedorUsuario">Introduzca su código de vendedor</label>
-            <input type="text" class="form-control" id="vendedorUsuario" placeholder="Código de vendedor">
-        </div>
-        <button type="submit" class="btn btn-default">Enviar</button>
+    <form ng-hide="usuario.idVendedor">
+        <div class="alert alert-danger" role="alert">Vendedor no identificado. Por favor, contacte con el departamento de adminitración para que le suministren un código QR.</div>
     </form>
     
-    <wizard ng-show="vendedor">
+    <wizard ng-show="usuario.idVendedor">
         <wz-step title="Cliente">
             <div cg-busy="{promise:promesaClientes,message:'Cargando clientes...'}"></div>
             <div>
