@@ -1,0 +1,142 @@
+<div ng-controller="plantillaVentaController">    
+    <div class="alert alert-danger" role="alert" ng-show="message">{{message}}</div>
+    
+    <form ng-hide="vendedor">
+        <div class="alert alert-danger" role="alert">Debe especificar su código de vendedor. Asegúrese que sea correcto, porque esta información NO la podrá cambiar con posterioridad.</div>
+        <div class="form-group">
+            <label for="vendedorUsuario">Introduzca su código de vendedor</label>
+            <input type="text" class="form-control" id="vendedorUsuario" placeholder="Código de vendedor">
+        </div>
+        <button type="submit" class="btn btn-default">Enviar</button>
+    </form>
+    
+    <wizard ng-show="vendedor">
+        <wz-step title="Cliente">
+            <div cg-busy="{promise:promesaClientes,message:'Cargando clientes...'}"></div>
+            <div>
+              <form>
+                  <div class="form-group">  
+                    <label for="txtCliente">Cliente</label>
+                    <div class="input-group">
+                        <!--  typeahead="cliente as cliente.direccion for cliente in clientes | filter:$viewValue | limitTo:8"  -->
+                        <input type="text" class="form-control" ng-model="model.filtro" id="txtCliente" placeholder="Introduzca algún dato del cliente" autofocus="autofocus" ng-focus="selectAllContent($event)" ng-mouseup="$event.preventDefault();"></input>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" ng-click="cargarClientes()" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                        </span>
+                    </div><!-- /input-group -->
+                  </div>
+                  <div class="list-group">
+                      <button type="button" class="list-group-item" ng-repeat="cliente in (clientesFiltrados = (clientes | filter:query))" wz-next="cargarPlantilla(cliente)" >
+                           <div class="media">
+                              <div class="media-left media-middle">
+                                <a href="#">
+                                  <img class="media-object" src="PlantillaVenta/cliente.png" width="64" height="64" alt="Lista de clientes">
+                                </a>
+                              </div>
+                              <div class="media-body">
+                                <h4 class="media-heading">{{cliente.nombre}}</h4>
+                                <br />{{cliente.direccion}}
+                                <br />{{cliente.telefono}}
+                                <br /><small>{{cliente.comentarios}}</small>
+                              </div>
+                            </div>
+                      </button>
+                  </div>
+              </form>
+            </div>
+        </wz-step>
+    
+        <wz-step title="Productos">
+            <div cg-busy="{promise:promesaProductos,message:'Cargando productos...'}"></div>
+            <div ng-hide="(!model.filtroProductos || (model.filtroProductos.length < 3)) && model.productosFiltrados.length">
+                <button class="btn btn-default btn-lg btn-block" ng-click="buscarEnTodosLosProductos()">Buscar en todos los productos</button>
+            </div>
+            <br />
+            <div class="sobreFooter">              
+              <accordion>
+                  <accordion-group ng-repeat="producto in (model.productosFiltrados = (productos | filter:model.filtroProductos))">
+                      <accordion-heading>
+                        <div class="row">
+                          <div class="col-xs-9">
+                            <b>{{producto.texto}}</b><br /><small>{{producto.tamanno}} {{producto.unidadMedida}} ({{producto.producto}} - {{producto.familia}})</small>
+                          </div>
+                          <div class="col-xs-3">
+                            <span class="label label-info center-block">{{producto.cantidadVendida}} - {{producto.cantidadAbonada}}</span>
+                            <div class="row" ng-hide="producto.cantidadVendida == 0 && producto.cantidadAbonada == 0">
+                                <small class="text-center center-block">{{producto.fechaUltimaVenta | date:'dd/MM/yyyy'}}</small>
+                            </div>
+                          </div>
+                        </div>
+                      </accordion-heading>
+                      <div class="row">
+                        <div class="col-xs-6">
+                          <label for="txtCantidad">Cantidad</label>
+                          <input type="number" min="0" id="txtCantidad" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidad">
+                        </div>
+                        <div class="col-xs-6">
+                          <label for="txtCantidadOferta">Cantidad Oferta</label>
+                          <input type="number" min="0" id="txtCantidadOferta" class="form-control" ng-model="producto.cantidadOferta">
+                        </div>                                
+                      </div>
+                  </accordion-group>
+              </accordion>
+              <button class="btn btn-default btn-lg btn-block" wz-next="cargarResumen()">Siguiente &gt;&gt;</button>
+              <br />
+            </div>
+            <div class="footer">
+                <form>
+                  <div class="form-group">  
+                    <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Filtrar..." autofocus="autofocus" id="txtProducto" ng-model="model.filtroProductos" ng-focus="selectAllContent($event)" ng-mouseup="$event.preventDefault();">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="fijarFiltro()" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                      </span>
+                    </div><!-- /input-group  -->
+                  </div>
+              </form>
+            </div>
+        </wz-step>
+        <wz-step title="Resumen">
+            <!-- Te resumo lo que has pedido: ... -->
+            <div class="list-group">
+                <a href="#" class="list-group-item" ng-repeat="producto in productosResumen">
+                    <h4 class="list-group-item-heading">{{producto.texto}}</h4>
+                    <span class="badge">{{producto.cantidadOferta == 0 ? producto.cantidad : producto.cantidad + "+" + producto.cantidadOferta}}</span>
+                    <p class="list-group-item-text">{{producto.familia}}</p>
+                </a>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">Comentarios Picking (los ven en almacén)</div>
+                <div class="panel-body">
+                    <textarea class="form-control" rows="3" ng-model="cliente.comentariosPicking"></textarea>
+                </div>
+            </div>
+            <button class="btn btn-default btn-lg btn-block" ng-disabled="!productosResumen.length" wz-next="cargarDireccionesEntrega()">Siguiente &gt;&gt;</button>              
+        </wz-step>
+        <wz-step title="Entrega">
+            <!-- Formas de pago, comentarios, ampliación de pedido y otros -->
+            <div class="list-group">
+                <button ng-repeat="direccion in direccionesEntrega" ng-click="$parent.direccionSeleccionada = direccion" class="list-group-item" ng-class="{active:direccionSeleccionada == direccion}">
+                    <div class="media">
+                        <div class="media-left media-middle">
+                            <a href="#">
+                                <img class="media-object" src="PlantillaVenta/direccion.jpg" width="64" height="64" alt="Dirección del cliente">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading">{{direccion.direccion}}</h4>
+                            <p>{{direccion.codigoPostal}} {{direccion.poblacion}} ({{direccion.provincia}})</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">Comentarios Ruta (los ve el cliente y la agencia)</div>
+                <div class="panel-body">
+                    <textarea class="form-control" rows="3" ng-model="direccionSeleccionada.comentariosRuta"></textarea>
+                </div>
+            </div>
+            <button class="btn btn-default btn-lg btn-block" wz-next>Crear Pedido</button>
+        </wz-step>
+    </wizard>
+</div>  
