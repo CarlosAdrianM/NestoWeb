@@ -61,9 +61,13 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
         $scope.model.filtroProductos = "";
     }
     
+    $scope.crearPedido = function() {
+        alert("Pedido creado");
+    }
+    
     $scope.selectAllContent= function($event) {
        $event.target.select();
-    };
+    };    
 }]);
 
 var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService', ['$http', 'SERVIDOR', '$filter', 'usuario', function ($http, SERVIDOR, $filter, usuario) {

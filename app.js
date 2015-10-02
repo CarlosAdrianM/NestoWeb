@@ -38,10 +38,12 @@ myApp.factory('usuario', function($localStorage) {
 });
 
 var vendedorController = myApp.controller('vendedorController', ['$scope', 'usuario', '$routeParams', '$location', '$localStorage', '$window', function ($scope, usuario, $routeParams, $location, $localStorage, $window) {
-  $localStorage.usuario = {
-    'idVendedor' : $routeParams.idVendedor,
-    'nombre' : "General"
-  };
+  if ((!$localStorage.usuario) || ($localStorage.usuario = {})) {
+    $localStorage.usuario = {
+      'idVendedor' : $routeParams.idVendedor,
+      'nombre' : "General"
+    };
+  }
   $location.path("/PlantillaVenta");
   $window.location.reload();
 }]);

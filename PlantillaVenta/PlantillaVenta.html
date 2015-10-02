@@ -49,7 +49,7 @@
             <br />
             <div class="sobreFooter">              
               <accordion>
-                  <accordion-group ng-repeat="producto in (model.productosFiltrados = (productos | filter:model.filtroProductos))">
+                  <accordion-group ng-repeat="producto in (model.productosFiltrados = (productos | filter:model.filtroProductos | limitTo:20))">
                       <accordion-heading>
                         <div class="row">
                           <div class="col-xs-9">
@@ -131,7 +131,7 @@
                     <textarea class="form-control" rows="3" ng-model="direccionSeleccionada.comentariosRuta"></textarea>
                 </div>
             </div>
-            <button class="btn btn-default btn-lg btn-block" wz-next>Crear Pedido</button>
+            <button class="btn btn-default btn-lg btn-block" ng-click="crearPedido()">Crear Pedido</button>
         </wz-step>
     </wizard>
 </div>  
