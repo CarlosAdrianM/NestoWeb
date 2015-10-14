@@ -12,7 +12,7 @@ plantillaVentaModule.config(['$routeProvider', function($routeProvider) {
 
 
 
-var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', function ($scope, plantillaVentaService, $filter, usuario) {
+var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR) {
     $scope.model = {};
     $scope.usuario = usuario;
     
@@ -62,7 +62,30 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
     }
     
     $scope.crearPedido = function() {
-        alert("Pedido creado");
+        $scope.pedido = {
+            "empresa" : $scope.cliente.empresa,
+            "cliente" : $scope.cliente.cliente,
+            "contacto" : $scope.direccionSeleccionada.contacto,
+            "fecha" : new Date(),
+            "formaPago" : "EFC",  //calcular
+            "plazosPago": "CONTADO", //calcular
+            "primerVencimiento": new Date(), //se calcula en la API
+            "iva" : $scope.cliente.iva, 
+            "vendedor" : $scope.direccionSeleccionada.vendedor, 
+            "comentarios": $scope.direccionSeleccionada.comentarios,
+            "comentarioPicking": $scope.cliente.comentarioPicking,
+            "periodoFacturacion": $scope.direccionSeleccionada.periodoFacturacion,
+            "ruta" : $scope.direccionSeleccionada.ruta,
+            "serie": "NV", //calcular
+            "ccc" : $scope.direccionSeleccionada.ccc,
+            "origen": $scope.cliente.empresa,
+            "contactoCobro": $scope.cliente.contacto, //calcular
+            "noComisiona" : $scope.direccionSeleccionada.noComisiona,
+            "mantenerJunto": $scope.direccionSeleccionada.mantenerJunto,
+            "servirJunto" : $scope.direccionSeleccionada.servirJunto,
+            "usuario": SERVIDOR.DOMINIO + "\\" + usuario.nombre
+        };
+        plantillaVentaService.crearPedido($scope);
     }
     
     $scope.selectAllContent= function($event) {
@@ -74,7 +97,8 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
     this.buscarProductos = function ($scope, $filter) {
         $scope.promesaBuscarProductos =  $http({
             method: "GET",
-            url: SERVIDOR.API_URL + "/PlantillaVentas/BuscarProducto?empresa=1&filtroProducto=" + $scope.model.filtroProductos,
+            url: SERVIDOR.API_URL + "/PlantillaVentas/BuscarProducto",
+            params: {empresa : $scope.cliente.empresa, filtroProducto : $scope.model.filtroProductos},
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.productos = data;
@@ -98,7 +122,8 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
     this.direccionesEntrega = function ($scope) {
         $scope.promesaDireccionesEntrega =  $http({
             method: "GET",
-            url: SERVIDOR.API_URL + "/PlantillaVentas/DireccionesEntrega?empresa=1&clienteDirecciones=" + $scope.cliente.cliente,
+            url: SERVIDOR.API_URL + "/PlantillaVentas/DireccionesEntrega",
+            params: {empresa : $scope.cliente.empresa, clienteDirecciones : $scope.cliente.cliente},
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.direccionesEntrega = data;
@@ -124,7 +149,8 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
     this.getProductos = function ($scope) {
         $scope.promesaProductos =  $http({
             method: "GET",
-            url: SERVIDOR.API_URL + "/PlantillaVentas?empresa=1&cliente=" + $scope.cliente.cliente,
+            url: SERVIDOR.API_URL + "/PlantillaVentas",
+            params: { empresa : $scope.cliente.empresa, cliente : $scope.cliente.cliente},
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.productos = data;
@@ -140,13 +166,29 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
     this.getClientes = function ($scope) {
         $scope.promesaClientes = $http({
             method: "GET",
-            url: SERVIDOR.API_URL + "/Clientes?empresa=1&vendedor=" + usuario.idVendedor + "&filtro=" + $scope.model.filtro,
+            url: SERVIDOR.API_URL + "/Clientes",
+            params: { empresa : SERVIDOR.EMPRESA_POR_DEFECTO, vendedor : usuario.idVendedor, filtro : $scope.model.filtro},
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.clientes = data;
             $scope.message = "";
         }).error(function (data, status) {
             $scope.message = "ERROR AL CARGAR LOS CLIENTES";
+        });
+        return $scope.promesaClientes;
+    };
+    
+    
+    this.crearPedido = function ($scope) {
+        $scope.promesaPedido = $http({
+            method: "POST",
+            url: SERVIDOR.API_URL + "/PedidoVenta",
+            headers: { 'Content-Type': 'application/json' },
+            data: $scope.pedido
+        }).success(function (data) {
+            $scope.message = "Pedido creado correctamente";
+        }).error(function (data, status) {
+            $scope.message = "ERROR AL TRAMITAR EL PEDIDO";
         });
         return $scope.promesaClientes;
     };
