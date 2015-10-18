@@ -48,14 +48,14 @@ var vendedorController = myApp.controller('vendedorController', ['$scope', 'usua
        'nombre' : nombre
      };
      
-     parametrosService.leer($scope, "Vendedor",
+     parametrosService.leerCallback($scope, "Vendedor",
         function(response){
           $localStorage.usuario = {
             'nombre' : nombre,
             'idVendedor' : response.data
           };
-          //$location.path("/PlantillaVenta");
-          //$window.location.reload();    
+          $location.path("/PlantillaVenta");
+          $window.location.reload();    
         }
      );
      
@@ -66,9 +66,9 @@ var vendedorController = myApp.controller('vendedorController', ['$scope', 'usua
 }]);
 
 
-var parametrosService = myApp.service('parametrosService', ['$localStorage', '$http', 'SERVIDOR', function($localStorage, $http, SERVIDOR) {
+var parametrosService = myApp.service('parametrosService', ['$localStorage', '$http', 'SERVIDOR', '$q', function($localStorage, $http, SERVIDOR, $q) {
   
-  this.leer = function($scope, clave, callback){
+  this.leerCallback = function($scope, clave, callback){
      $http({
         method: "GET",
         url: SERVIDOR.API_URL + "/ParametrosUsuario",
@@ -81,5 +81,21 @@ var parametrosService = myApp.service('parametrosService', ['$localStorage', '$h
     });
     
   };
+  
+  this.leer = function(clave) {
+    var deferred = $q.defer();
+    $http({
+        method: "GET",
+        url: SERVIDOR.API_URL + "/ParametrosUsuario",
+        params: {empresa : SERVIDOR.EMPRESA_POR_DEFECTO, usuario : $localStorage.usuario.nombre, clave : clave},
+        headers: { 'Content-Type': 'application/json' }
+    }).then(function successCallback(response) {
+        deferred.resolve(response.data);
+    }, function errorCallback(response) {
+        deferred.reject("Error al leer el parámetro");
+    });
+    
+    return deferred.promise;
+  }
 
 }]);

@@ -66,11 +66,11 @@
                       <div class="row">
                         <div class="col-xs-6">
                           <label for="txtCantidad">Cantidad</label>
-                          <input type="number" min="0" id="txtCantidad" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidad">
+                          <input type="number" min="0" id="txtCantidad" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidad" ng-focus="selectAllContent($event)">
                         </div>
                         <div class="col-xs-6">
                           <label for="txtCantidadOferta">Cantidad Oferta</label>
-                          <input type="number" min="0" id="txtCantidadOferta" class="form-control" ng-model="producto.cantidadOferta">
+                          <input type="number" min="0" id="txtCantidadOferta" class="form-control" ng-model="producto.cantidadOferta" ng-focus="selectAllContent($event)">
                         </div>                                
                       </div>
                   </accordion-group>
@@ -103,7 +103,7 @@
             <div class="panel panel-info">
                 <div class="panel-heading">Comentarios Picking (los ven en almacén)</div>
                 <div class="panel-body">
-                    <textarea class="form-control" rows="3" ng-model="cliente.comentariosPicking"></textarea>
+                    <textarea class="form-control" rows="3" ng-model="cliente.comentarioPicking" ng-focus="selectAllContent($event)" ng-mouseup="$event.preventDefault();"></textarea>
                 </div>
             </div>
             <button class="btn btn-default btn-lg btn-block" ng-disabled="!productosResumen.length" wz-next="cargarDireccionesEntrega()">Siguiente &gt;&gt;</button>              
@@ -128,7 +128,7 @@
             <div class="panel panel-info">
                 <div class="panel-heading">Comentarios Ruta (los ve el cliente y la agencia)</div>
                 <div class="panel-body">
-                    <textarea class="form-control" rows="3" ng-model="direccionSeleccionada.comentariosRuta"></textarea>
+                    <textarea class="form-control" rows="3" ng-model="direccionSeleccionada.comentarios" ng-focus="selectAllContent($event)" ng-mouseup="$event.preventDefault();"></textarea>
                 </div>
             </div>
             <button class="btn btn-default btn-lg btn-block" ng-click="crearPedido()">Crear Pedido</button>

@@ -12,7 +12,7 @@ plantillaVentaModule.config(['$routeProvider', function($routeProvider) {
 
 
 
-var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR) {
+var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', 'parametrosService', '$q', '$window', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR, parametrosService, $q, $window) {
     $scope.model = {};
     $scope.usuario = usuario;
     
@@ -50,7 +50,7 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
         }
     }
     
-    $scope.fijarFiltro = function() {
+    $scope.fijarFiltro = function($location) {
         if ($scope.model.filtroProductos == "") {
             //angular.copy($scope.productosInicial, $scope.productos);
             $scope.productos = $scope.productosInicial;
@@ -67,8 +67,8 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
             "cliente" : $scope.cliente.cliente,
             "contacto" : $scope.direccionSeleccionada.contacto,
             "fecha" : new Date(),
-            "formaPago" : "EFC",  //calcular
-            "plazosPago": "CONTADO", //calcular
+            "formaPago" : $scope.direccionSeleccionada.formaPago, 
+            "plazosPago": $scope.direccionSeleccionada.plazosPago,
             "primerVencimiento": new Date(), //se calcula en la API
             "iva" : $scope.cliente.iva, 
             "vendedor" : $scope.direccionSeleccionada.vendedor, 
@@ -83,10 +83,68 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
             "noComisiona" : $scope.direccionSeleccionada.noComisiona,
             "mantenerJunto": $scope.direccionSeleccionada.mantenerJunto,
             "servirJunto" : $scope.direccionSeleccionada.servirJunto,
-            "usuario": SERVIDOR.DOMINIO + "\\" + usuario.nombre
+            "usuario": SERVIDOR.DOMINIO + "\\" + usuario.nombre,
+            "LineasPedido" : []
         };
-        plantillaVentaService.crearPedido($scope);
-    }
+        var nuevaLinea = {}, lineaPedidoOferta = {};
+        
+        var formaVentaUsuario;
+        var promesaFormaVenta = parametrosService.leer("FormaVentaDefecto").then(function(responseText) {
+            formaVentaUsuario = responseText;
+        });
+        var delegacionUsuario;
+        var promesaDelegacion = parametrosService.leer("DelegaciónDefecto").then(function(responseText) {
+            delegacionUsuario = responseText;
+        });
+        var almacenRutaUsuario;
+        var promesaAlmacen = parametrosService.leer("AlmacénRuta").then(function(responseText) {
+            almacenRutaUsuario = responseText;
+        });
+        var ofertaLinea = 0;
+        var ultimaOferta = 0;
+        
+        function cogerSiguienteOferta() {
+            ultimaOferta += 1;
+            return ultimaOferta;
+        }
+        
+        $q.all([promesaFormaVenta, promesaDelegacion, promesaAlmacen]).then(function(results) {
+            angular.forEach($scope.productosResumen, function(linea, key) {
+                ofertaLinea = linea.cantidadOferta ? cogerSiguienteOferta() : 0;
+                nuevaLinea = {
+                    "estado" : 1, //ojo, de parámetro. ¿Pongo 0 para tener que validar?
+                    "tipoLinea" : 1, // Producto
+                    "producto" : linea.producto,
+                    "texto" : linea.texto,
+                    "cantidad" : linea.cantidad,
+                    "fechaEntrega" : new Date(),
+                    "precio" : linea.precio,
+                    "descuento" : linea.descuento,
+                    "aplicarDescuento" : linea.aplicarDescuento,
+                    "vistoBueno" : 0, //calcular
+                    "usuario" : SERVIDOR.DOMINIO + "\\" + usuario.nombre,
+                    "almacen" : almacenRutaUsuario,
+                    "iva" : linea.iva,
+                    "delegacion" : delegacionUsuario, //pedir al usuario en alguna parte
+                    "formaVenta" : formaVentaUsuario,
+                    "oferta" : ofertaLinea
+                };           
+                $scope.pedido.LineasPedido.push(nuevaLinea);      
+                
+                if(linea.cantidadOferta) {
+                    lineaPedidoOferta = angular.copy(nuevaLinea);
+                    lineaPedidoOferta.cantidad = linea.cantidadOferta;
+                    lineaPedidoOferta.precio = 0;
+                    lineaPedidoOferta.oferta = nuevaLinea.oferta;
+                    $scope.pedido.LineasPedido.push(lineaPedidoOferta);
+                };              
+            });
+                
+            plantillaVentaService.crearPedido($scope);
+            alert("Pedido creado correctamente");
+            $window.location.reload();
+        });        
+    };
     
     $scope.selectAllContent= function($event) {
        $event.target.select();
@@ -171,7 +229,12 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.clientes = data;
-            $scope.message = "";
+            if (data.length) {
+                $scope.message = "";
+            } else {
+                $scope.message = "No se ha encontrado ningún cliente";
+            }
+            
         }).error(function (data, status) {
             $scope.message = "ERROR AL CARGAR LOS CLIENTES";
         });
@@ -180,9 +243,10 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
     
     
     this.crearPedido = function ($scope) {
+        $scope.message = "Creando pedido...";
         $scope.promesaPedido = $http({
             method: "POST",
-            url: SERVIDOR.API_URL + "/PedidoVenta",
+            url: SERVIDOR.API_URL + "/PedidosVenta",
             headers: { 'Content-Type': 'application/json' },
             data: $scope.pedido
         }).success(function (data) {
