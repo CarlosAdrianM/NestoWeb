@@ -1,12 +1,12 @@
 <div ng-controller="plantillaVentaController">    
     <div class="alert alert-danger" role="alert" ng-show="message">{{message}}</div>
     
-    <form ng-hide="usuario.idVendedor">
-        <div class="alert alert-danger" role="alert">Vendedor no identificado. Por favor, contacte con el departamento de adminitración para que le suministren un código QR.</div>
+    <form ng-hide="usuario.idVendedor  || usuario.numeroCliente">
+        <div class="alert alert-danger" role="alert">Usuario no identificado. Por favor, contacte con el departamento de adminitración para que le suministren un código QR.</div>
     </form>
     
-    <wizard ng-show="usuario.idVendedor">
-        <wz-step title="Cliente">
+    <wizard ng-show="usuario.idVendedor || usuario.numeroCliente">
+        <wz-step title="Cliente" wz-disabled="{{ocultarPasoCliente}}">
             <div cg-busy="{promise:promesaClientes,message:'Cargando clientes...'}"></div>
             <div>
               <form>

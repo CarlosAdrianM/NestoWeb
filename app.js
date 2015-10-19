@@ -16,6 +16,10 @@ config(['$routeProvider', function($routeProvider) {
     templateUrl: "vendedor.html",
     controller: "vendedorController"
   })
+  .when('/cliente/:numeroCliente/:contacto', {
+    templateUrl: "cliente.html",
+    controller: "clienteController"
+  })
   .otherwise({redirectTo: '/PlantillaVenta'});
 }])
 .constant('SERVIDOR', {
@@ -62,6 +66,18 @@ var vendedorController = myApp.controller('vendedorController', ['$scope', 'usua
      $scope.usuario = function() {
        return $localStorage.usuario;
      }
+  }
+}]);
+
+var clienteController = myApp.controller('clienteController', ['$scope', 'usuario', '$routeParams', '$localStorage', 'parametrosService', '$location', '$window', function($scope, usuario, $routeParams, $localStorage, parametrosService, $location, $window){
+  if ((!$localStorage.usuario) || ($localStorage.usuario = {})) {
+    $localStorage.usuario = {
+      'numeroCliente' : $routeParams.numeroCliente,
+      'contacto' : $routeParams.contacto,
+      'nombre' : "Cliente"+$routeParams.numeroCliente
+    };
+    $location.path("/PlantillaVenta");
+    $window.location.reload();
   }
 }]);
 
