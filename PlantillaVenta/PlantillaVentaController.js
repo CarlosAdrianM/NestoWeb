@@ -1,5 +1,5 @@
 
-var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', 'parametrosService', '$q', 'WizardHandler', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR, parametrosService, $q, WizardHandler) {
+var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', 'parametrosService', '$q', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR, parametrosService, $q) {
     $scope.model = {};
     $scope.usuario = usuario;
     
@@ -7,7 +7,7 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
         $scope.ocultarPasoCliente = 'true';
         plantillaVentaService.cargarUnCliente($scope, usuario.numeroCliente, usuario.contacto).then(function(){
             $scope.cargarPlantilla($scope.cliente);
-            WizardHandler.wizard().goTo(1); //Productos
+            //WizardHandler.wizard().goTo(1); //Productos
         });
     } else {
         $scope.ocultarPasoCliente = 'false';
@@ -62,23 +62,23 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
     
     $scope.crearPedido = function() {
         $scope.pedido = {
-            "empresa" : $scope.cliente.empresa,
-            "cliente" : $scope.cliente.cliente,
+            "empresa" : $scope.cliente.empresa.trim(),
+            "cliente" : $scope.cliente.cliente.trim(),
             "contacto" : $scope.direccionSeleccionada.contacto,
             "fecha" : new Date(),
             "formaPago" : $scope.direccionSeleccionada.formaPago, 
-            "plazosPago": $scope.direccionSeleccionada.plazosPago,
+            "plazosPago": $scope.direccionSeleccionada.plazosPago.trim(),
             "primerVencimiento": new Date(), //se calcula en la API
             "iva" : $scope.cliente.iva, 
             "vendedor" : $scope.direccionSeleccionada.vendedor, 
-            "comentarios": $scope.direccionSeleccionada.comentarios,
-            "comentarioPicking": $scope.cliente.comentarioPicking,
+            "comentarios": $scope.direccionSeleccionada.comentarioRuta,
+            "comentarioPicking": $scope.cliente.comentarioPicking ? $scope.cliente.comentarioPicking.trim() : null,
             "periodoFacturacion": $scope.direccionSeleccionada.periodoFacturacion,
             "ruta" : $scope.direccionSeleccionada.ruta,
             "serie": "NV", //calcular
             "ccc" : $scope.direccionSeleccionada.ccc,
-            "origen": $scope.cliente.empresa,
-            "contactoCobro": $scope.cliente.contacto, //calcular
+            "origen": $scope.cliente.empresa.trim(),
+            "contactoCobro": $scope.cliente.contacto.trim(), //calcular
             "noComisiona" : $scope.direccionSeleccionada.noComisiona,
             "mantenerJunto": $scope.direccionSeleccionada.mantenerJunto,
             "servirJunto" : $scope.direccionSeleccionada.servirJunto,
@@ -87,18 +87,22 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
         };
         var nuevaLinea = {}, lineaPedidoOferta = {};
         
-        var formaVentaUsuario;
-        var promesaFormaVenta = parametrosService.leer("FormaVentaDefecto").then(function(responseText) {
-            formaVentaUsuario = responseText;
-        });
-        var delegacionUsuario;
-        var promesaDelegacion = parametrosService.leer("DelegaciónDefecto").then(function(responseText) {
-            delegacionUsuario = responseText;
-        });
-        var almacenRutaUsuario;
-        var promesaAlmacen = parametrosService.leer("AlmacénRuta").then(function(responseText) {
-            almacenRutaUsuario = responseText;
-        });
+        if(usuario.idVendedor) {
+            var promesaDelegacion = parametrosService.leer("DelegaciónDefecto").then(function(responseText) {
+                usuario.delegacion = responseText;
+            });            
+        } else {
+            usuario.delegacion = "ALG"
+        }
+        
+        if(usuario.idVendedor) {
+            var promesaAlmacen = parametrosService.leer("AlmacénRuta").then(function(responseText) {
+                usuario.almacen = responseText;
+            });
+        } else {
+            usuario.almacen = "ALG";
+        }
+            
         var ofertaLinea = 0;
         var ultimaOferta = 0;
         
@@ -107,7 +111,7 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
             return ultimaOferta;
         }
         
-        $q.all([promesaFormaVenta, promesaDelegacion, promesaAlmacen]).then(function(results) {
+        $q.all([promesaDelegacion, promesaAlmacen]).then(function(results) {
             angular.forEach($scope.productosResumen, function(linea, key) {
                 ofertaLinea = linea.cantidadOferta ? cogerSiguienteOferta() : 0;
                 nuevaLinea = {
@@ -122,10 +126,10 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
                     "aplicarDescuento" : linea.aplicarDescuento,
                     "vistoBueno" : 0, //calcular
                     "usuario" : SERVIDOR.DOMINIO + "\\" + usuario.nombre,
-                    "almacen" : almacenRutaUsuario,
+                    "almacen" : usuario.almacen,
                     "iva" : linea.iva,
-                    "delegacion" : delegacionUsuario, //pedir al usuario en alguna parte
-                    "formaVenta" : formaVentaUsuario,
+                    "delegacion" : usuario.delegacion,
+                    "formaVenta" : usuario.formaVenta,
                     "oferta" : ofertaLinea
                 };           
                 $scope.pedido.LineasPedido.push(nuevaLinea);      

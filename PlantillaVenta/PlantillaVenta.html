@@ -6,7 +6,7 @@
     </form>
     
     <wizard ng-show="usuario.idVendedor || usuario.numeroCliente">
-        <wz-step title="Cliente" wz-disabled="{{ocultarPasoCliente}}">
+        <wz-step title="Cliente" ng-if="usuario.idVendedor">
             <div cg-busy="{promise:promesaClientes,message:'Cargando clientes...'}"></div>
             <div>
               <form>
@@ -41,7 +41,7 @@
             </div>
         </wz-step>
     
-        <wz-step title="Productos">
+        <wz-step title="Productos" ng-if="usuario">
             <div cg-busy="{promise:promesaProductos,message:'Cargando productos...'}"></div>
             <div ng-hide="(!model.filtroProductos || (model.filtroProductos.length < 3)) && model.productosFiltrados.length">
                 <button class="btn btn-default btn-lg btn-block" ng-click="buscarEnTodosLosProductos()">Buscar en todos los productos</button>
@@ -91,7 +91,7 @@
               </form>
             </div>
         </wz-step>
-        <wz-step title="Resumen">
+        <wz-step title="Resumen" ng-if="usuario">
             <!-- Te resumo lo que has pedido: ... -->
             <div class="list-group">
                 <a href="#" class="list-group-item" ng-repeat="producto in productosResumen">
@@ -108,7 +108,7 @@
             </div>
             <button class="btn btn-default btn-lg btn-block" ng-disabled="!productosResumen.length" wz-next="cargarDireccionesEntrega()">Siguiente &gt;&gt;</button>              
         </wz-step>
-        <wz-step title="Entrega">
+        <wz-step title="Entrega" ng-if="usuario">
             <!-- Formas de pago, comentarios, ampliación de pedido y otros -->
             <div class="list-group">
                 <button ng-repeat="direccion in direccionesEntrega" ng-click="$parent.direccionSeleccionada = direccion" class="list-group-item" ng-class="{active:direccionSeleccionada == direccion}">
@@ -128,7 +128,7 @@
             <div class="panel panel-info">
                 <div class="panel-heading">Comentarios Ruta (los ve el cliente y la agencia)</div>
                 <div class="panel-body">
-                    <textarea class="form-control" rows="3" ng-model="direccionSeleccionada.comentarios" ng-focus="selectAllContent($event)" ng-mouseup="$event.preventDefault();"></textarea>
+                    <textarea class="form-control" rows="3" ng-model="direccionSeleccionada.comentarioRuta" ng-focus="selectAllContent($event)" ng-mouseup="$event.preventDefault();"></textarea>
                 </div>
             </div>
             <button class="btn btn-default btn-lg btn-block" ng-click="crearPedido()">Crear Pedido</button>

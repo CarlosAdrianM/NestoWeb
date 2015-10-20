@@ -39,79 +39,11 @@ myApp.factory('usuario', function($localStorage) {
       nuevoUsuario = {};
   }
   
+  // Para que los vendedores que ya estén creados sean compatibles
+  if(nuevoUsuario.idVendedor && !nuevoUsuario.formaVenta){
+    nuevoUsuario.formaVenta = "DIR";
+  }
+  
   // factory function body that constructs shinyNewServiceInstance
   return nuevoUsuario;
 });
-
-
-var vendedorController = myApp.controller('vendedorController', ['$scope', 'usuario', '$routeParams', '$location', '$localStorage', '$window', 'parametrosService', function ($scope, usuario, $routeParams, $location, $localStorage, $window, parametrosService) {
-  if ((!$localStorage.usuario) || ($localStorage.usuario = {})) {
-     var nombre = $routeParams.nombreUsuario;
-     //usuario.nombre = nombre;
-     $localStorage.usuario = {
-       'nombre' : nombre
-     };
-     
-     parametrosService.leerCallback($scope, "Vendedor",
-        function(response){
-          $localStorage.usuario = {
-            'nombre' : nombre,
-            'idVendedor' : response.data
-          };
-          $location.path("/PlantillaVenta");
-          $window.location.reload();    
-        }
-     );
-     
-     $scope.usuario = function() {
-       return $localStorage.usuario;
-     }
-  }
-}]);
-
-var clienteController = myApp.controller('clienteController', ['$scope', 'usuario', '$routeParams', '$localStorage', 'parametrosService', '$location', '$window', function($scope, usuario, $routeParams, $localStorage, parametrosService, $location, $window){
-  if ((!$localStorage.usuario) || ($localStorage.usuario = {})) {
-    $localStorage.usuario = {
-      'numeroCliente' : $routeParams.numeroCliente,
-      'contacto' : $routeParams.contacto,
-      'nombre' : "Cliente"+$routeParams.numeroCliente
-    };
-    $location.path("/PlantillaVenta");
-    $window.location.reload();
-  }
-}]);
-
-
-var parametrosService = myApp.service('parametrosService', ['$localStorage', '$http', 'SERVIDOR', '$q', function($localStorage, $http, SERVIDOR, $q) {
-  
-  this.leerCallback = function($scope, clave, callback){
-     $http({
-        method: "GET",
-        url: SERVIDOR.API_URL + "/ParametrosUsuario",
-        params: {empresa : SERVIDOR.EMPRESA_POR_DEFECTO, usuario : $localStorage.usuario.nombre, clave : clave},
-        headers: { 'Content-Type': 'application/json' }
-    }).then(function successCallback(response) {
-        callback(response);
-    }, function errorCallback(response) {
-        throw new Error("Error al leer el parámetro");
-    });
-    
-  };
-  
-  this.leer = function(clave) {
-    var deferred = $q.defer();
-    $http({
-        method: "GET",
-        url: SERVIDOR.API_URL + "/ParametrosUsuario",
-        params: {empresa : SERVIDOR.EMPRESA_POR_DEFECTO, usuario : $localStorage.usuario.nombre, clave : clave},
-        headers: { 'Content-Type': 'application/json' }
-    }).then(function successCallback(response) {
-        deferred.resolve(response.data);
-    }, function errorCallback(response) {
-        deferred.reject("Error al leer el parámetro");
-    });
-    
-    return deferred.promise;
-  }
-
-}]);
