@@ -1,4 +1,4 @@
-var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService', ['$http', 'SERVIDOR', '$filter', 'usuario', '$window', function ($http, SERVIDOR, $filter, usuario, $window) {
+var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService', ['$http', 'SERVIDOR', '$filter', 'usuario', '$window', 'CacheFactory', function ($http, SERVIDOR, $filter, usuario, $window, CacheFactory) {
     this.buscarProductos = function ($scope, $filter) {
         $scope.promesaBuscarProductos =  $http({
             method: "GET",
@@ -56,7 +56,8 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
             method: "GET",
             url: SERVIDOR.API_URL + "/PlantillaVentas",
             params: { empresa : $scope.cliente.empresa, cliente : $scope.cliente.cliente},
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            cache : true
         }).success(function (data) {
             $scope.productos = data;
             //$scope.productosInicial = angular.copy($scope.productos);
@@ -72,7 +73,7 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
         $scope.promesaClientes = $http({
             method: "GET",
             url: SERVIDOR.API_URL + "/Clientes",
-            params: { empresa : SERVIDOR.EMPRESA_POR_DEFECTO, vendedor : usuario.idVendedor, filtro : $scope.model.filtro},
+            params: usuario.idVendedor ? { empresa : SERVIDOR.EMPRESA_POR_DEFECTO, vendedor : usuario.idVendedor, filtro : $scope.model.filtro} : { empresa : SERVIDOR.EMPRESA_POR_DEFECTO, filtro : $scope.model.filtro},
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.clientes = data;
@@ -89,11 +90,13 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
     };
     
     this.cargarUnCliente = function ($scope, numeroCliente, contacto) {
+        
         $scope.promesaCliente = $http({
             method: "GET",
             url: SERVIDOR.API_URL + "/Clientes",
             params: { empresa : SERVIDOR.EMPRESA_POR_DEFECTO, cliente : numeroCliente, contacto : contacto},
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            cache : true
         }).success(function (data) {
             $scope.cliente = data;
             $scope.message = "";
@@ -120,4 +123,32 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
         });
         return $scope.promesaClientes;
     };
+    
+    this.cargarStockProducto = function($scope, producto) {
+        if (!producto) {
+            return;
+        }
+        $scope.promesaStock = $http({
+            method: "GET",
+            url: SERVIDOR.API_URL + "/PlantillaVentas/CargarStocks",
+            params: { empresa : SERVIDOR.EMPRESA_POR_DEFECTO, almacen : "ALG", productoStock : producto.producto},
+            headers: { 'Content-Type': 'application/json' },
+            cache : true
+        }).success(function (data) {
+            producto.stockActualizado = true;
+            producto.stock = data.stock;
+            producto.cantidadDisponible = data.cantidadDisponible;
+            producto.urlImagen = data.urlImagen;
+            if (producto.cantidadDisponible >= producto.cantidad + producto.cantidadOferta) {
+                producto.colorStock = "Verde";
+            } else if (producto.stock >= producto.cantidad + producto.cantidadOferta) {
+                producto.colorStock = "Naranja";
+            } else {
+                producto.colorStock = "Rojo";
+            }
+        }).error(function (data, status) {
+            $scope.message = "ERROR AL ACTUALIZAR EL STOCK";
+        });
+    }
+    
 }]);

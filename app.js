@@ -9,9 +9,15 @@ var myApp = angular.module('myApp', [
   'cgBusy',
   'ui.bootstrap',
   'mgo-angular-wizard',
-  'ngStorage'
-]).
-config(['$routeProvider', function($routeProvider) {
+  'ngStorage',
+  'ja.qr',
+  'angular-cache'
+])
+.config(function(CacheFactoryProvider) {
+  angular.extend(CacheFactoryProvider.defaults, { maxAge: 1 * 60 * 1000 });
+})
+
+.config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/vendedor/:nombreUsuario', {
     templateUrl: "vendedor.html",
     controller: "vendedorController"
@@ -19,6 +25,10 @@ config(['$routeProvider', function($routeProvider) {
   .when('/cliente/:numeroCliente/:contacto', {
     templateUrl: "cliente.html",
     controller: "clienteController"
+  })
+ .when('/codigoQr/:numeroCliente/:contacto', {
+    templateUrl: "codigoQr.html",
+    controller: "codigoQrController"
   })
   .otherwise({redirectTo: '/PlantillaVenta'});
 }])

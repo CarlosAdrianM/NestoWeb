@@ -1,5 +1,4 @@
-
-var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', 'parametrosService', '$q', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR, parametrosService, $q) {
+var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', 'parametrosService', '$q', '$location', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR, parametrosService, $q, $location) {
     $scope.model = {};
     $scope.usuario = usuario;
     
@@ -44,6 +43,24 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
     }
     
     $scope.comprobarSiExisteElProducto = function($producto) {
+        if (!$producto) {
+            return;
+        }
+
+        $producto.colorStock = "Gris";
+        
+        if (!$producto.stockActualizado) {
+            plantillaVentaService.cargarStockProducto($scope, $producto);
+        } else {
+            if ($producto.cantidadDisponible >= $producto.cantidad + $producto.cantidadOferta) {
+                $producto.colorStock = "Verde";
+            } else if ($producto.stock >= $producto.cantidad + $producto.cantidadOferta) {
+                $producto.colorStock = "Naranja";
+            } else {
+                $producto.colorStock = "Rojo";
+            }
+        }
+        
         if (!$filter('filter')($scope.productosInicial, { producto: $producto.producto })[0]) {
             $scope.productosInicial.push($producto);
         }
@@ -146,6 +163,10 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
             plantillaVentaService.crearPedido($scope);
         });        
     };
+    
+    $scope.generarCodigoQR = function(cliente) {
+        $location.path("/codigoQr/" + cliente.cliente +"/"+ cliente.contacto);
+    }
     
     $scope.selectAllContent= function($event) {
        $event.target.select();

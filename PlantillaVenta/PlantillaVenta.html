@@ -1,12 +1,12 @@
 <div ng-controller="plantillaVentaController">    
     <div class="alert alert-danger" role="alert" ng-show="message">{{message}}</div>
     
-    <form ng-hide="usuario.idVendedor  || usuario.numeroCliente">
+    <form ng-hide="usuario.formaVenta">
         <div class="alert alert-danger" role="alert">Usuario no identificado. Por favor, contacte con el departamento de adminitración para que le suministren un código QR.</div>
     </form>
     
-    <wizard ng-show="usuario.idVendedor || usuario.numeroCliente">
-        <wz-step title="Cliente" ng-if="usuario.idVendedor">
+    <wizard ng-show="usuario.formaVenta">
+        <wz-step title="Cliente" ng-if="!usuario.numeroCliente">
             <div cg-busy="{promise:promesaClientes,message:'Cargando clientes...'}"></div>
             <div>
               <form>
@@ -34,6 +34,8 @@
                                 <br />{{cliente.telefono}}
                                 <br /><small>{{cliente.comentarios}}</small>
                               </div>
+                              <br />
+                              <!--a href="#" class="btn btn-info btn-xs btn-block" role="button" ng-click="generarCodigoQR(cliente)">Generar Código QR del Cliente</a-->
                             </div>
                       </button>
                   </div>
@@ -64,14 +66,17 @@
                         </div>
                       </accordion-heading>
                       <div class="row">
-                        <div class="col-xs-6">
-                          <label for="txtCantidad">Cantidad</label>
+                        <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
+                          <label for="txtCantidad" class="control-label">Cantidad</label>
                           <input type="number" min="0" id="txtCantidad" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidad" ng-focus="selectAllContent($event)">
                         </div>
-                        <div class="col-xs-6">
-                          <label for="txtCantidadOferta">Cantidad Oferta</label>
-                          <input type="number" min="0" id="txtCantidadOferta" class="form-control" ng-model="producto.cantidadOferta" ng-focus="selectAllContent($event)">
+                        <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
+                          <label for="txtCantidadOferta" class="control-label">Cantidad Oferta</label>
+                          <input type="number" min="0" id="txtCantidadOferta" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidadOferta" ng-focus="selectAllContent($event)">
                         </div>                                
+                      </div>
+                      <div ng-if="producto.urlImagen">
+                          <img class="img-responsive img-thumbnail center-block" ng-src="{{producto.urlImagen}}" align="middle"/>
                       </div>
                   </accordion-group>
               </accordion>
@@ -94,11 +99,24 @@
         <wz-step title="Resumen" ng-if="usuario">
             <!-- Te resumo lo que has pedido: ... -->
             <div class="list-group">
-                <a href="#" class="list-group-item" ng-repeat="producto in productosResumen">
-                    <h4 class="list-group-item-heading">{{producto.texto}}</h4>
-                    <span class="badge">{{producto.cantidadOferta == 0 ? producto.cantidad : producto.cantidad + "+" + producto.cantidadOferta}}</span>
-                    <p class="list-group-item-text">{{producto.familia}}</p>
-                </a>
+                <li class="list-group-item" ng-repeat="producto in productosResumen">
+                    <div class="media">
+                        <div class="media-left">
+                            <a href="#">
+                                <img class="media-object" ng-src="{{producto.urlImagen}}" width = "64">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="list-group-item-heading">{{producto.texto}}</h4>
+                            <p class="list-group-item-text">{{producto.familia}}</p>
+                        </div>
+                        <div class="media-right" style="vertical-align: middle;">
+                            <span class="label" ng-class="{'label-default': producto.colorStock == 'Gris', 'label-success': producto.colorStock == 'Verde', 'label-warning': producto.colorStock == 'Naranja', 'label-danger': producto.colorStock == 'Rojo' }">
+                                {{producto.cantidadOferta == 0 ? producto.cantidad : producto.cantidad + "+" + producto.cantidadOferta}}
+                            </span>
+                        </div>
+                    </div>
+                </li>
             </div>
             <div class="panel panel-info">
                 <div class="panel-heading">Comentarios Picking (los ven en almacén)</div>
@@ -124,6 +142,12 @@
                         </div>
                     </div>
                 </button>
+            </div>
+            <div class="well">
+                <label>
+                    <input type="checkbox" ng-model="direccionSeleccionada.servirJunto">
+                    Servir Junto
+                </label>
             </div>
             <div class="panel panel-info">
                 <div class="panel-heading">Comentarios Ruta (los ve el cliente y la agencia)</div>
