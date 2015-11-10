@@ -2,6 +2,7 @@
 
 // Declare app level module which depends on views, and components
 var myApp = angular.module('myApp', [
+  'ngMaterial',
   'ngRoute',
   'myApp.PlantillaVenta',
 //  'myApp.view2',
@@ -57,3 +58,32 @@ myApp.factory('usuario', function($localStorage) {
   // factory function body that constructs shinyNewServiceInstance
   return nuevoUsuario;
 });
+
+myApp.directive('datepickerLocaldate', [function () {
+    var directive = {
+        require: 'ngModel',
+        link: link
+    };
+    return directive;
+
+    function link(scope, element, attr, ngModel) {
+        var converted = false;
+        scope.$watch(
+            function(){
+                return ngModel.$modelValue;
+            },
+            function(modelValue){
+                if(!converted && modelValue){
+                    converted=true;
+
+                    var dt = new Date(modelValue);
+                    if(dt.getTimezoneOffset() > 0)
+                        dt.setMinutes(dt.getMinutes() + dt.getTimezoneOffset());
+
+                    ngModel.$modelValue = dt;
+                    ngModel.$render();
+
+                }
+        });
+    }
+}]);

@@ -1,6 +1,11 @@
-var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', 'parametrosService', '$q', '$location', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR, parametrosService, $q, $location) {
+var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaController', ['$scope', 'plantillaVentaService', '$filter', 'usuario', 'SERVIDOR', 'parametrosService', '$q', '$location', '$mdToast', function ($scope, plantillaVentaService, $filter, usuario, SERVIDOR, parametrosService, $q, $location, $mdToast) {
     $scope.model = {};
     $scope.usuario = usuario;
+    $scope.parent = {fechaEntrega: new Date()};
+//    $scope.parent.fechaEntrega = new Date();
+    $scope.hoy = new Date();
+    $scope.status = {calendarioAbierto : false};
+    
     
     if (usuario.numeroCliente) {
         $scope.ocultarPasoCliente = 'true';
@@ -12,7 +17,14 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
         $scope.ocultarPasoCliente = 'false';
     }
     
-    
+    $scope.mostrarError = function($texto) {
+        $mdToast.show(
+            $mdToast.simple()
+            .content($texto)
+            .position('top right')
+            .hideDelay(10000)
+        );
+    }
     
 
     $scope.buscarEnTodosLosProductos = function() {
@@ -82,10 +94,10 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
             "empresa" : $scope.cliente.empresa.trim(),
             "cliente" : $scope.cliente.cliente.trim(),
             "contacto" : $scope.direccionSeleccionada.contacto,
-            "fecha" : new Date(),
+            "fecha" : $scope.hoy,
             "formaPago" : $scope.direccionSeleccionada.formaPago, 
             "plazosPago": $scope.direccionSeleccionada.plazosPago.trim(),
-            "primerVencimiento": new Date(), //se calcula en la API
+            "primerVencimiento": $scope.hoy, //se calcula en la API
             "iva" : $scope.cliente.iva, 
             "vendedor" : $scope.direccionSeleccionada.vendedor, 
             "comentarios": $scope.direccionSeleccionada.comentarioRuta,
@@ -137,7 +149,7 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
                     "producto" : linea.producto,
                     "texto" : linea.texto,
                     "cantidad" : linea.cantidad,
-                    "fechaEntrega" : new Date(),
+                    "fechaEntrega" : $scope.parent.fechaEntrega,
                     "precio" : linea.precio,
                     "descuento" : linea.descuento,
                     "aplicarDescuento" : linea.aplicarDescuento,
@@ -167,6 +179,21 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
     $scope.generarCodigoQR = function(cliente) {
         $location.path("/codigoQr/" + cliente.cliente +"/"+ cliente.contacto);
     }
+    
+    $scope.abrirCalendario = function($event) {
+        $scope.status.calendarioAbierto = true;
+    };
+    
+    // Disable weekend selection
+    $scope.disabled = function(date, mode) {
+        return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+    };
+    
+    $scope.dateOptions = {
+        //formatYear: 'yy',
+        startingDay: 1,
+        showWeeks: false
+    };
     
     $scope.selectAllContent= function($event) {
        $event.target.select();

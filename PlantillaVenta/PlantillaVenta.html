@@ -35,7 +35,7 @@
                                 <br /><small>{{cliente.comentarios}}</small>
                               </div>
                               <br />
-                              <!--a href="#" class="btn btn-info btn-xs btn-block" role="button" ng-click="generarCodigoQR(cliente)">Generar Código QR del Cliente</a-->
+                              <!--<a href="#" class="btn btn-info btn-xs btn-block" role="button" ng-click="generarCodigoQR(cliente)">Generar Código QR del Cliente</a>-->
                             </div>
                       </button>
                   </div>
@@ -50,9 +50,9 @@
             </div>
             <br />
             <div class="sobreFooter">              
-              <accordion>
-                  <accordion-group ng-repeat="producto in (model.productosFiltrados = (productos | filter:model.filtroProductos | limitTo:20))">
-                      <accordion-heading>
+              <uib-accordion>
+                  <uib-accordion-group ng-repeat="producto in (model.productosFiltrados = (productos | filter:model.filtroProductos | limitTo:20))">
+                      <uib-accordion-heading>
                         <div class="row">
                           <div class="col-xs-9">
                             <b>{{producto.texto}}</b><br /><small>{{producto.tamanno}} {{producto.unidadMedida}} ({{producto.producto}} - {{producto.familia}})</small>
@@ -64,7 +64,7 @@
                             </div>
                           </div>
                         </div>
-                      </accordion-heading>
+                      </uib-accordion-heading>
                       <div class="row">
                         <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
                           <label for="txtCantidad" class="control-label">Cantidad</label>
@@ -78,8 +78,8 @@
                       <div ng-if="producto.urlImagen">
                           <img class="img-responsive img-thumbnail center-block" ng-src="{{producto.urlImagen}}" align="middle"/>
                       </div>
-                  </accordion-group>
-              </accordion>
+                  </uib-accordion-group>
+              </uib-accordion>
               <button class="btn btn-default btn-lg btn-block" wz-next="cargarResumen()">Siguiente &gt;&gt;</button>
               <br />
             </div>
@@ -143,12 +143,22 @@
                     </div>
                 </button>
             </div>
-            <div class="well">
-                <label>
-                    <input type="checkbox" ng-model="direccionSeleccionada.servirJunto">
-                    Servir Junto
-                </label>
+            <md-checkbox ng-model="direccionSeleccionada.servirJunto" aria-label="Servir Junto" class="md-primary">
+            Servir Junto
+            </md-checkbox>
+            <!--
+            <md-datepicker ng-model="fechaEntrega" md-placeholder="Fecha de entrega" md-min-date="hoy" aria-label="Fecha de Entrega"></md-datepicker>
+            -->
+            <div>
+                <label for="fecha">Fecha de Entrega</label>
+                <p class="input-group">
+                    <input id="fecha" type="date" class="form-control" uib-datepicker-popup datepickerLocaldate ng-model="parent.fechaEntrega" is-open="status.calendarioAbierto" min-date="hoy" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" show-button-bar="false" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="abrirCalendario($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </p>
             </div>
+                                 
             <div class="panel panel-info">
                 <div class="panel-heading">Comentarios Ruta (los ve el cliente y la agencia)</div>
                 <div class="panel-body">

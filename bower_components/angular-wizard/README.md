@@ -19,8 +19,8 @@ You can download this by:
 <link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/angular.wizard/latest/angular-wizard.min.css">
 
 <!-- Or use TAG number for specific version -->
-<script type="text/javascript" src="http://cdn.jsdelivr.net/angular.wizard/0.5.1/angular.wizard.min.js"></script>
-<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/angular.wizard/0.5.1/angular-wizard.min.css">
+<script type="text/javascript" src="http://cdn.jsdelivr.net/angular.wizard/0.5.4/angular-wizard.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/angular.wizard/0.5.4/angular-wizard.min.css">
 ````
 
 The dist folder contains the following files:
@@ -78,6 +78,7 @@ Let's go step by step to see how this works.
 * **hide-indicators**: If set to true, the indicators in the bottom of the page showing the current page and allowing navigation for the wizard will be hidden. Defaults to false.
 * **current-step**: You need to set here a property from your scope (similar to `ng-model`) and that property will always have the name of the current step being shown on the screen.
 * **template**: Path to a custom template.
+* **wz-disabled**: expression that when evaluated to `true` will remove said step from the wizard
 
 2) Inside the wizard, we can have as many steps as we want. Each step MUST have a title which is going to be used to identify it. Inside each step, we can put whatever we want. Other directives, bindings, controls, forms, etc.
 
@@ -93,6 +94,37 @@ All of this attributes can receive an optional function to be called before chan
 ````
 
 In this case, the `setMode` function will be called before going to the next step.
+
+## Wizard Dynamic Steps
+A step can be conditionally disabled and may change at any time either adding it or removing it from the wizard step flow.
+
+ **Example**
+ 
+HTML
+````html
+<wizard on-finish="finishedWizard()"> 
+    <wz-step title="Starting" wz-disabled="{{disabled}}">
+        <h1>This is the first step</h1>
+        <p>Here you can use whatever you want. You can use other directives, binding, etc.</p>
+        <input type="submit" wz-next value="Continue" />
+    </wz-step>
+    <wz-step title="Continuing">
+        <h1>Continuing</h1>
+        <p>You have continued here!</p>
+        <input type="submit" wz-next value="Go on" />
+    </wz-step>
+    <wz-step title="More steps">
+        <p>Even more steps!!</p>
+        <input type="submit" wz-next value="Finish now" />
+    </wz-step>
+</wizard>
+````
+Controller
+````javascript
+//this will cause the step to be hidden
+$scope.disabled = 'true';
+````
+
 
 ## Wizard Step Validation
 The wzStep directive has the following options as attributes:

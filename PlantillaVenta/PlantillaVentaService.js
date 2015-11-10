@@ -1,4 +1,4 @@
-var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService', ['$http', 'SERVIDOR', '$filter', 'usuario', '$window', 'CacheFactory', function ($http, SERVIDOR, $filter, usuario, $window, CacheFactory) {
+var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService', ['$http', 'SERVIDOR', '$filter', 'usuario', '$window', 'CacheFactory', '$mdToast', '$mdDialog', function ($http, SERVIDOR, $filter, usuario, $window, CacheFactory, $mdToast, $mdDialog) {
     this.buscarProductos = function ($scope, $filter) {
         $scope.promesaBuscarProductos =  $http({
             method: "GET",
@@ -17,9 +17,8 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
                     $scope.productos[i] = productoInicial;
                 }
             }
-            $scope.message = "";
         }).error(function (data) {
-            $scope.message = "ERROR AL CARGAR LOS PRODUCTOS";
+            $scope.mostrarError("Se ha producido un error al cargar los productos");
         });
         return $scope.promesaBuscarProductos;
     };
@@ -44,9 +43,8 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
                 }
                 i++;
             }
-            $scope.message = "";
         }).error(function (data) {
-            $scope.message = "ERROR AL CARGAR LAS DIRECCIONES DE ENTREGA";
+            $scope.mostrarError("Se ha producido un error al cargar las direcciones de entrega");
         });
         return $scope.promesaDireccionesEntrega;
     };
@@ -62,9 +60,8 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
             $scope.productos = data;
             //$scope.productosInicial = angular.copy($scope.productos);
             $scope.productosInicial = $scope.productos;
-            $scope.message = "";
         }).error(function (data) {
-            $scope.message = "ERROR AL CARGAR LOS PRODUCTOS";
+            $scope.mostrarError("Se ha producido un error al cargar los productos");
         });
         return $scope.promesaProductos;
     };
@@ -77,14 +74,12 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
             headers: { 'Content-Type': 'application/json' }
         }).success(function (data) {
             $scope.clientes = data;
-            if (data.length) {
-                $scope.message = "";
-            } else {
-                $scope.message = "No se ha encontrado ningún cliente";
+            if (!data.length) {
+                $scope.mostrarError("No se ha encontrado ningún cliente");
             }
             
         }).error(function (data, status) {
-            $scope.message = "ERROR AL CARGAR LOS CLIENTES";
+            $scope.mostrarError('Se ha producido un error al cargar los clientes');
         });
         return $scope.promesaClientes;
     };
@@ -99,27 +94,34 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
             cache : true
         }).success(function (data) {
             $scope.cliente = data;
-            $scope.message = "";
         }).error(function (data, status) {
-            $scope.message = "ERROR AL CARGAR EL CLIENTE";
+            $scope.mostrarError("Se ha producido un error al cargar el cliente");
         });
         return $scope.promesaCliente;
     };
     
     
     this.crearPedido = function ($scope) {
-        $scope.message = "Creando pedido...";
         $scope.promesaPedido = $http({
             method: "POST",
             url: SERVIDOR.API_URL + "/PedidosVenta",
             headers: { 'Content-Type': 'application/json' },
             data: $scope.pedido
         }).success(function (data) {
-            $scope.message = "Pedido creado correctamente";
-            alert("Pedido creado correctamente");
-            $window.location.reload();
+            $scope.mostrarError("Pedido creado correctamente");
+            //alert("Pedido creado correctamente");
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .clickOutsideToClose(false)
+                    .title('Información')
+                    .content('Pedido creado correctamente.')
+                    .ariaLabel('Pedido creado correctamente')
+                    .ok('Volver')
+            ).finally(function() {
+                $window.location.reload();
+            });
         }).error(function (data, status) {
-            $scope.message = "ERROR AL TRAMITAR EL PEDIDO";
+            $scope.mostrarError("Se ha producido un error al tramitar el pedido");
         });
         return $scope.promesaClientes;
     };
@@ -147,7 +149,7 @@ var plantillaVentaService = plantillaVentaModule.service('plantillaVentaService'
                 producto.colorStock = "Rojo";
             }
         }).error(function (data, status) {
-            $scope.message = "ERROR AL ACTUALIZAR EL STOCK";
+            $scope.mostrarError("Se ha producido un error al actualizar el stock del producto");
         });
     }
     
