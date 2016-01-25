@@ -1,0 +1,54 @@
+<div class="alert alert-danger" role="alert" ng-show="message">{{message}}</div>
+
+<form ng-hide="usuario.formaVenta">
+    <div class="alert alert-danger" role="alert">Usuario no identificado. Por favor, contacte con el departamento de adminitración para que le suministren un código QR.</div>
+</form>
+
+<div cg-busy="{promise:promesaClientes,message:'Cargando clientes...'}"></div>
+
+<div>
+    <form>
+        <div class="form-group">  
+        <label for="txtCliente">Cliente</label>
+        <div class="input-group">
+            <!--  typeahead="cliente as cliente.direccion for cliente in clientes | filter:$viewValue | limitTo:8"  -->
+            <input type="text" class="form-control" ng-model="model.filtro" id="txtCliente" placeholder="Introduzca algún dato del cliente" autofocus="autofocus" ng-focus="selectAllContent($event)" ng-mouseup="$event.preventDefault();"></input>
+            <span class="input-group-btn">
+                <button class="btn btn-default" ng-click="cargarClientes()" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+            </span>
+        </div><!-- /input-group -->
+        </div>
+        <div class="list-group" ng-show="mostrarClientes">
+            <button type="button" class="list-group-item" ng-repeat="cliente in (clientesFiltrados = (clientes | filter:query))">
+                <div class="media" ng-click="cargarDeuda(cliente)">
+                    <div class="media-left media-middle">
+                        <a href="#">
+                            <img class="media-object" src="ExtractoCliente/cliente.png" width="64" height="64" alt="Lista de clientes">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <h4 class="media-heading">{{cliente.nombre}}</h4>
+                        <br />{{cliente.direccion}}
+                        <br />{{cliente.telefono}}
+                        <br /><small>{{cliente.comentarios}}</small>
+                    </div>
+                    <br />
+                    <!--<a href="#" class="btn btn-info btn-xs btn-block" role="button" ng-click="generarCodigoQR(cliente)">Generar Código QR del Cliente</a>-->
+                </div>
+            </button>
+        </div>
+        <md-list ng-show="movimientosDeuda">
+            <md-list-item class="md-2-line" ng-repeat="mov in movimientosDeuda">
+                <div class="md-list-item-text">
+                <h3>{{mov.vencimiento | date:'dd/MM/yyyy'}}</h3>
+                <p>{{mov.concepto}}</p>
+                <p>{{mov.importePendiente | currency }}</p>
+                </div>
+            </md-list-item>
+        </md-list>
+    </form>
+</div>
+
+<div ng-hide="mostrarClientes">
+    Total deuda: 
+</div>
