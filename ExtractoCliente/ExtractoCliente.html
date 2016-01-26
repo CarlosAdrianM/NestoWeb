@@ -28,6 +28,7 @@
                     </div>
                     <div class="media-body">
                         <h4 class="media-heading">{{cliente.nombre}}</h4>
+                        <small>{{cliente.cliente}}</small>
                         <br />{{cliente.direccion}}
                         <br />{{cliente.telefono}}
                         <br /><small>{{cliente.comentarios}}</small>
@@ -40,15 +41,31 @@
         <md-list ng-show="movimientosDeuda">
             <md-list-item class="md-2-line" ng-repeat="mov in movimientosDeuda">
                 <div class="md-list-item-text">
-                <h3>{{mov.vencimiento | date:'dd/MM/yyyy'}}</h3>
-                <p>{{mov.concepto}}</p>
-                <p>{{mov.importePendiente | currency }}</p>
+                    <h3>{{mov.vencimiento | date:'dd/MM/yyyy'}}</h3>
+                    <p>{{mov.concepto}}</p>
+                    <p>{{mov.importePendiente | currency }}</p>
                 </div>
             </md-list-item>
+            <md-divider></md-divider>
         </md-list>
     </form>
 </div>
 
-<div ng-hide="mostrarClientes">
-    Total deuda: 
-</div>
+<table class="table" ng-hide="mostrarClientes">
+    <tr ng-show="resumenDeuda.vencida">
+        <td>Total vencida</td>
+        <td>{{ resumenDeuda.vencida | currency }}</td>
+    </tr>
+    <tr class="danger" ng-show="resumenDeuda.impagados">
+        <td class="danger">Total impagados</td>
+        <td class="danger">{{ resumenDeuda.impagados | currency }}</td>
+    </tr>
+    <tr class="danger" ng-show="resumenDeuda.abogado">
+        <td class="danger">Total abogado</td>
+        <td class="danger">{{ resumenDeuda.abogado | currency }}</td>
+    </tr>
+    <tr class="active">
+        <td class="active"><strong>Total deuda</strong></td>
+        <td class="active"><strong>{{ resumenDeuda.total | currency }}</strong></td>
+    </tr>
+</table>

@@ -28,6 +28,23 @@ var extractoClienteService = extractoClienteModule.service('extractoClienteServi
             if (!data.length) {
                 $scope.mostrarError("Este cliente no tiene deuda");
             }
+            $scope.resumenDeuda = {};
+            $scope.resumenDeuda.total = 0;
+            $scope.resumenDeuda.impagados = 0;
+            $scope.resumenDeuda.vencida = 0;
+            $scope.resumenDeuda.abogado = 0;
+            angular.forEach($scope.movimientosDeuda, function(value, key){
+                if(value.tipo.trim() == '4') {
+                    $scope.resumenDeuda.impagados += value.importePendiente;
+                }
+                if(value.ruta && value.ruta.trim() == 'AB') {
+                    $scope.resumenDeuda.abogado += value.importePendiente;
+                }
+                if(value.vencimiento < $scope.hoy.toISOString()) {
+                    $scope.resumenDeuda.vencida += value.importePendiente;
+                }
+                $scope.resumenDeuda.total += value.importePendiente;
+            });
             
         }).error(function (data, status) {
             $scope.mostrarError('Se ha producido un error al cargar la deuda');
