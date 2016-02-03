@@ -1,0 +1,64 @@
+<form name="datosCliente">
+  <md-input-container>
+    <label>Nº Cliente</label>
+    <input name="cliente" ng-model="cliente" required md-maxlength="15" minlength="1">
+  </md-input-container>
+  <md-input-container>
+    <label>CIF/NIF</label>
+    <input name="NIF" ng-model="NIF" required md-maxlength="9" minlength="2">
+  </md-input-container>
+  <md-button class="md-raised md-primary" ng-click="cargarModelo()"> Calcular </md-button>
+</form>
+
+<div ng-show="modelo">
+    <form name="datosFiscales">
+        <md-input-container>
+            <label>Nombre Fiscal</label>
+            <input name="nombre" ng-model="modelo.nombre" ng-readonly="true">
+        </md-input-container>
+        <md-input-container>
+            <label>Dirección Fiscal</label>
+            <input name="direccion" ng-model="modelo.direccion" ng-readonly="true">
+        </md-input-container>
+        <md-input-container>
+            <label>Código Postal</label>
+            <input name="codigoPostal" ng-model="modelo.codigoPostal" ng-readonly="true">
+        </md-input-container>
+    </form>
+    
+    <table class="table table-bordered">
+        <tr>
+            <td>1T</td>
+            <td class="text-right">{{modelo.trimestre[0] | currency}}</td>
+        </tr>
+        <tr>
+            <td>2T</td>
+            <td class="text-right">{{modelo.trimestre[1] | currency}}</td>
+        </tr>
+        <tr>
+            <td>3T</td>
+            <td class="text-right">{{modelo.trimestre[2] | currency}}</td>
+        </tr>
+        <tr>
+            <td>4T</td>
+            <td class="text-right">{{modelo.trimestre[3] | currency}}</td>
+        </tr>    
+        <tr>
+            <td><strong>TOTAL</strong></td>
+            <td class="text-right"><strong>{{modelo.total | currency}}</strong></td>
+        </tr>   
+    </table>
+    
+    <table class="table table-bordered">
+        <tr ng-repeat="mov in modelo.MovimientosMayor">
+            <td>{{mov.fecha | date:'dd/MM/yyyy' }}</td>
+            <td>{{mov.concepto}}</td>
+            <td class="text-right">{{mov.importe | currency }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><strong>TOTAL</strong></td>
+            <td class="text-right"><strong>{{modelo.total | currency}}</strong></td>
+        </tr>
+    </table>
+</div>

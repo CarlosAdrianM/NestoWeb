@@ -6,6 +6,7 @@ var myApp = angular.module('myApp', [
   'ngRoute',
   'myApp.PlantillaVenta',
   'myApp.ExtractoCliente',
+  'myApp.Modelo347',
 //  'myApp.view2',
 //  'myApp.vendedor',
   'cgBusy',
@@ -35,8 +36,8 @@ var myApp = angular.module('myApp', [
   .otherwise({redirectTo: '/PlantillaVenta'});
 }])
 .constant('SERVIDOR', {
-  'API_URL': 'http://88.26.231.83/api',
-  //'API_URL': 'http://localhost:53364/api',
+  //'API_URL': 'http://88.26.231.83/api',
+  'API_URL': 'http://localhost:53364/api',
   'DOMINIO': 'NUEVAVISION',
   'EMPRESA_POR_DEFECTO' : 1
 });
