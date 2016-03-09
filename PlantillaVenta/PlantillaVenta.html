@@ -65,15 +65,27 @@
                     </div>
                     </uib-accordion-heading>
                     <div class="row">
-                    <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
-                        <label for="txtCantidad" class="control-label">Cantidad</label>
-                        <input type="number" min="0" id="txtCantidad" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidad" ng-focus="selectAllContent($event)">
+                        <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
+                            <label for="txtCantidad" class="control-label">Cantidad</label>
+                            <input type="number" min="0" id="txtCantidad" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidad" ng-focus="selectAllContent($event)">
+                        </div>
+                        <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
+                            <label for="txtCantidadOferta" class="control-label">Cantidad Oferta</label>
+                            <input type="number" min="0" id="txtCantidadOferta" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidadOferta" ng-focus="selectAllContent($event)">
+                        </div>                                
                     </div>
-                    <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
-                        <label for="txtCantidadOferta" class="control-label">Cantidad Oferta</label>
-                        <input type="number" min="0" id="txtCantidadOferta" class="form-control" ng-change="comprobarSiExisteElProducto(producto)" ng-model="producto.cantidadOferta" ng-focus="selectAllContent($event)">
-                    </div>                                
+                    <div class="row" ng-show="producto.cantidad || producto.cantidadOferta">
+                        <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
+                            <label for="txtPrecio" class="control-label">Precio</label>
+                            <input id="txtPrecio" class="form-control" ng-model="producto.precio" moneda ng-focus="selectAllContent($event)">
+                        </div>
+                        <div class="col-xs-6" ng-class="{'form-group': producto.colorStock == 'Gris', 'form-group has-success': producto.colorStock == 'Verde', 'form-group has-warning': producto.colorStock == 'Naranja', 'form-group has-error': producto.colorStock == 'Rojo' }">
+                            <label for="txtDescuento" class="control-label">Descuento</label>
+                            <input type="percent" id="txtDescuento" class="form-control" ng-model="producto.descuento" percent ng-focus="selectAllContent($event)">
+                        </div>                                
                     </div>
+                    
+                        
                     <div ng-if="producto.urlImagen">
                         <img class="img-responsive img-thumbnail center-block" ng-src="{{producto.urlImagen}}" align="middle"/>
                     </div>

@@ -159,7 +159,7 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
                     "iva" : linea.iva,
                     "delegacion" : usuario.delegacion,
                     "formaVenta" : usuario.formaVenta,
-                    "oferta" : ofertaLinea
+                    "oferta" : ofertaLinea == 0 ? null : ofertaLinea
                 };           
                 $scope.pedido.LineasPedido.push(nuevaLinea);      
                 
