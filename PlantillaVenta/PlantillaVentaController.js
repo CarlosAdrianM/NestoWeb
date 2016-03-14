@@ -89,6 +89,10 @@ var plantillaVentaController = plantillaVentaModule.controller('plantillaVentaCo
         $scope.model.filtroProductos = "";
     }
     
+    $scope.asignarDireccionEntrega = function(direccion) {
+        $scope.direccionSeleccionada = direccion;
+    }
+    
     $scope.crearPedido = function() {
         $scope.pedido = {
             "empresa" : $scope.cliente.empresa.trim(),

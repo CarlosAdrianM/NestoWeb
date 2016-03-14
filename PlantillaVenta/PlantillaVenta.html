@@ -140,7 +140,7 @@
     <wz-step title="Entrega" ng-if="usuario">
         <!-- Formas de pago, comentarios, ampliación de pedido y otros -->
         <div class="list-group">
-            <button ng-repeat="direccion in direccionesEntrega" ng-click="$parent.direccionSeleccionada = direccion" class="list-group-item" ng-class="{active:direccionSeleccionada == direccion}">
+            <button ng-repeat="direccion in direccionesEntrega" ng-click="$parent.asignarDireccionEntrega(direccion)" class="list-group-item" ng-class="{active:direccionSeleccionada == direccion}">
                 <div class="media">
                     <div class="media-left media-middle">
                         <a href="#">
